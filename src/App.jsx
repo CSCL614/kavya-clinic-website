@@ -12,6 +12,7 @@ const About        = lazy(() => import('./pages/About.jsx'))
 const Services     = lazy(() => import('./pages/Services.jsx'))
 const BeforeAfter  = lazy(() => import('./pages/BeforeAfter.jsx'))
 const Gallery      = lazy(() => import('./pages/Gallery.jsx'))
+const GalleryAlbum = lazy(() => import('./pages/GalleryAlbum.jsx'))
 const Contact      = lazy(() => import('./pages/Contact.jsx'))
 
 // ── Page transition variants ─────────────────────────────────────────────────
@@ -76,6 +77,7 @@ export default function App() {
               <Route path="/services"      element={<AnimatedPage><Services /></AnimatedPage>} />
               <Route path="/before-after"  element={<AnimatedPage><BeforeAfter /></AnimatedPage>} />
               <Route path="/gallery"       element={<AnimatedPage><Gallery /></AnimatedPage>} />
+              <Route path="/gallery/:id"   element={<AnimatedPage><GalleryAlbum /></AnimatedPage>} />
               <Route path="/contact"       element={<AnimatedPage><Contact /></AnimatedPage>} />
             </Routes>
           </AnimatePresence>

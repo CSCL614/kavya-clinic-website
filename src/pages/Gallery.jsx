@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import {
   X, ChevronLeft, ChevronRight, ZoomIn,
   Calendar, Tag, ImageOff, Upload
@@ -12,7 +12,7 @@ import SectionWrapper from '../components/SectionWrapper.jsx'
 // To add a real image: set `img: '/src/assets/your-image.png'`
 // To use a styled placeholder: leave `img: null`
 // ─────────────────────────────────────────────────────────────────────────────
-const galleryItems = [
+export const galleryItems = [
   // ── Events ────────────────────────────────────────────────────────────────
   {
     id: 1,
@@ -20,7 +20,11 @@ const galleryItems = [
     title: 'Free Diabetes Screening Camp',
     date: 'April 2026',
     description: 'Over 200 patients attended our free diabetes screening camp. HbA1c, fasting glucose and BMI checks were provided at zero cost.',
-    img: '/src/assets/gallery_diabetes_camp.png',
+    images: [
+      '/src/assets/gallery_diabetes_camp.png',
+      '/src/assets/doctor_kavya.png',
+      '/src/assets/hero.png'
+    ],
     span: 'col-span-2 row-span-2',   // featured large card
     gradient: 'from-blue-500 to-cyan-600',
     icon: '🩺',
@@ -193,17 +197,40 @@ function PlaceholderPanel({ item }) {
 // ─────────────────────────────────────────────────────────────────────────────
 function Lightbox({ items, activeIndex, onClose, onPrev, onNext }) {
   const item = items[activeIndex]
+  const images = item.images && item.images.length > 0 ? item.images : (item.img ? [item.img] : [])
+  const hasMultiple = images.length > 1
+  const [photoIndex, setPhotoIndex] = useState(0)
+
+  // Reset internal photo index when changing cards
+  useEffect(() => {
+    setPhotoIndex(0)
+  }, [activeIndex])
+
+  const nextPhoto = (e) => {
+    e.stopPropagation()
+    setPhotoIndex(p => (p + 1) % images.length)
+  }
+  const prevPhoto = (e) => {
+    e.stopPropagation()
+    setPhotoIndex(p => (p - 1 + images.length) % images.length)
+  }
 
   // Keyboard navigation
   useEffect(() => {
     const handler = (e) => {
-      if (e.key === 'Escape')      onClose()
-      if (e.key === 'ArrowRight')  onNext()
-      if (e.key === 'ArrowLeft')   onPrev()
+      if (e.key === 'Escape') onClose()
+      if (e.key === 'ArrowRight') {
+        if (hasMultiple && photoIndex < images.length - 1) setPhotoIndex(p => p + 1)
+        else onNext()
+      }
+      if (e.key === 'ArrowLeft') {
+        if (hasMultiple && photoIndex > 0) setPhotoIndex(p => p - 1)
+        else onPrev()
+      }
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [onClose, onPrev, onNext])
+  }, [onClose, onPrev, onNext, hasMultiple, photoIndex, images.length])
 
   return (
     <AnimatePresence>
@@ -228,15 +255,45 @@ function Lightbox({ items, activeIndex, onClose, onPrev, onNext }) {
           onClick={e => e.stopPropagation()}
         >
           {/* Image / Placeholder */}
-          <div className="relative h-72 sm:h-96 overflow-hidden">
-            {item.img ? (
-              <img src={item.img} alt={item.title}
-                   className="w-full h-full object-cover" />
+          <div className="relative h-72 sm:h-96 overflow-hidden group/lbimg">
+            {images.length > 0 ? (
+              <AnimatePresence mode="wait">
+                <motion.img
+                  key={photoIndex}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  src={images[photoIndex]} 
+                  alt={`${item.title} - Photo ${photoIndex + 1}`}
+                  className="w-full h-full object-cover" 
+                />
+              </AnimatePresence>
             ) : (
               <PlaceholderPanel item={item} />
             )}
+
+            {/* Photo controls inside image for multi-image cards */}
+            {hasMultiple && (
+              <>
+                <button onClick={prevPhoto} className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/50 text-white flex items-center justify-center opacity-0 group-hover/lbimg:opacity-100 transition-opacity z-20 hover:bg-primary-600">
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <button onClick={nextPhoto} className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/50 text-white flex items-center justify-center opacity-0 group-hover/lbimg:opacity-100 transition-opacity z-20 hover:bg-primary-600">
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+                
+                {/* Photo dots */}
+                <div className="absolute bottom-[3.25rem] left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
+                  {images.map((_, i) => (
+                    <div key={i} className={`h-1.5 rounded-full transition-all duration-300 ${i === photoIndex ? 'bg-white w-4' : 'bg-white/50 w-1.5'}`} />
+                  ))}
+                </div>
+              </>
+            )}
+
             {/* Gradient overlay for text readability */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
 
             {/* Close */}
             <button onClick={onClose} id="lightbox-close"
@@ -306,9 +363,19 @@ function Lightbox({ items, activeIndex, onClose, onPrev, onNext }) {
 // ─────────────────────────────────────────────────────────────────────────────
 // GALLERY CARD
 // ─────────────────────────────────────────────────────────────────────────────
-function GalleryCard({ item, index, onClick }) {
+function GalleryCard({ item, index }) {
+  const navigate = useNavigate()
   const isLarge = item.span === 'col-span-2 row-span-2'
   const isWide  = item.span === 'col-span-2'
+
+  const images = item.images && item.images.length > 0 ? item.images : (item.img ? [item.img] : [])
+  const displayImg = images[0]
+  const hasMultiple = images.length > 1
+
+  // Convert "col-span-2" to "sm:col-span-2" so it doesn't break mobile 1-col grid
+  const responsiveSpan = item.span
+    ? item.span.split(' ').map(s => `sm:${s}`).join(' ')
+    : ''
 
   return (
     <motion.div
@@ -317,15 +384,14 @@ function GalleryCard({ item, index, onClick }) {
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay: index * 0.06, ease: 'easeOut' }}
       className={`group relative overflow-hidden rounded-2xl cursor-pointer
-                  ${item.span || ''}
-                  ${isLarge ? 'min-h-[340px]' : isWide ? 'min-h-[200px]' : 'min-h-[220px]'}`}
-      onClick={() => onClick(index)}
-      style={{ aspectRatio: isLarge ? 'unset' : isWide ? '2/1' : '1/1' }}
+                  ${responsiveSpan}
+                  ${isLarge ? 'min-h-[250px] sm:min-h-[340px]' : isWide ? 'min-h-[200px]' : 'min-h-[220px]'}`}
+      onClick={() => navigate(`/gallery/${item.id}`)}
     >
       {/* Image or Placeholder */}
       <div className="absolute inset-0">
-        {item.img ? (
-          <img src={item.img} alt={item.title}
+        {displayImg ? (
+          <img src={displayImg} alt={item.title}
                className="w-full h-full object-cover
                           group-hover:scale-105 transition-transform duration-500 ease-out" />
         ) : (
@@ -334,6 +400,14 @@ function GalleryCard({ item, index, onClick }) {
           </div>
         )}
       </div>
+
+      {/* Multiple images indicator */}
+      {hasMultiple && (
+        <div className="absolute top-3 right-14 h-8 px-2.5 rounded-full bg-black/60 backdrop-blur-sm
+                        flex items-center justify-center text-white text-xs font-bold shadow-md border border-white/10">
+          +{images.length - 1} photos
+        </div>
+      )}
 
       {/* Hover overlay */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent
@@ -374,18 +448,10 @@ function GalleryCard({ item, index, onClick }) {
 // ─────────────────────────────────────────────────────────────────────────────
 export default function Gallery() {
   const [activeCategory, setActiveCategory] = useState('All')
-  const [lightboxIndex, setLightboxIndex]   = useState(null)
 
   const filtered = activeCategory === 'All'
     ? galleryItems
     : galleryItems.filter(i => i.category === activeCategory)
-
-  const openLightbox = useCallback((index) => setLightboxIndex(index), [])
-  const closeLightbox = useCallback(() => setLightboxIndex(null), [])
-  const prevItem = useCallback(() =>
-    setLightboxIndex(i => (i - 1 + filtered.length) % filtered.length), [filtered.length])
-  const nextItem = useCallback(() =>
-    setLightboxIndex(i => (i + 1) % filtered.length), [filtered.length])
 
   return (
     <>
@@ -481,7 +547,7 @@ export default function Gallery() {
               <code className="bg-primary-100 px-1.5 py-0.5 rounded text-[11px]">img: null</code>{' '}
               with{' '}
               <code className="bg-primary-100 px-1.5 py-0.5 rounded text-[11px]">
-                img: '/src/assets/your-photo.jpg'
+                images: ['/src/assets/photo1.jpg', '/src/assets/photo2.jpg']
               </code>{' '}
               in <code className="bg-primary-100 px-1.5 py-0.5 rounded text-[11px]">Gallery.jsx</code> to add photos for each card.
             </p>
@@ -495,15 +561,14 @@ export default function Gallery() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.25 }}
-              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4
-                         auto-rows-[180px]"
+              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4
+                         auto-rows-[200px] sm:auto-rows-[180px] grid-flow-dense"
             >
               {filtered.map((item, i) => (
                 <GalleryCard
                   key={item.id}
                   item={item}
                   index={i}
-                  onClick={openLightbox}
                 />
               ))}
             </motion.div>
@@ -564,16 +629,6 @@ export default function Gallery() {
         </div>
       </SectionWrapper>
 
-      {/* ── Lightbox ─────────────────────────────────────── */}
-      {lightboxIndex !== null && (
-        <Lightbox
-          items={filtered}
-          activeIndex={lightboxIndex}
-          onClose={closeLightbox}
-          onPrev={prevItem}
-          onNext={nextItem}
-        />
-      )}
     </>
   )
 }

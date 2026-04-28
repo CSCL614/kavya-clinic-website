@@ -61,26 +61,26 @@ export default function Navbar() {
       >
 
         {/* ── Logo ── */}
-        <Link to="/" onClick={close} className="flex items-center gap-3 group shrink-0">
-          <div className="relative">
+        <Link to="/" onClick={close} className="flex items-center gap-2.5 group shrink-0 max-w-[75%] sm:max-w-none">
+          <div className="relative shrink-0">
             {/* Pulse ring */}
             <span className="absolute inset-0 rounded-xl bg-gradient-to-br from-primary-400 to-secondary-500
                              opacity-0 group-hover:opacity-40 scale-100 group-hover:scale-125
                              transition-all duration-500 blur-sm" />
-            <div className="relative w-12 h-12 rounded-xl flex items-center justify-center overflow-hidden
+            <div className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center overflow-hidden
                             bg-white
                             shadow-lg shadow-primary-200 group-hover:shadow-primary-300
                             group-hover:scale-105 transition-all duration-300">
-              <img src="/logo.png" alt="Dr. Kavya Logo" className="w-full h-full object-contain p-1" />
+              <img src="/logo.png" alt="Dr. Kavya Logo" className="w-full h-full object-contain p-0.5 sm:p-1" />
             </div>
           </div>
-          <div className="leading-tight">
-            <p className="text-[15px] font-bold text-slate-800 font-display tracking-tight
-                          group-hover:text-primary-700 transition-colors duration-200">
-              Dr. Kavya's
+          <div className="leading-tight min-w-0">
+            <p className="text-[13px] sm:text-[15px] font-bold text-slate-800 font-display tracking-tight
+                          group-hover:text-primary-700 transition-colors duration-200 truncate">
+              DR NAVYA'S ENDO CARE
             </p>
-            <p className="text-[11px] text-slate-400 font-medium -mt-0.5 tracking-wide">
-              Endocrinology &amp; Diabetes
+            <p className="text-[9px] sm:text-[12px] text-slate-400 font-medium -mt-0.5 tracking-wide truncate">
+              Diabetes,Thyriod And Endocrine Superspeciality Center
             </p>
           </div>
         </Link>
