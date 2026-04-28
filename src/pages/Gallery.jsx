@@ -21,9 +21,9 @@ export const galleryItems = [
   date: 'April 2026',
   description: 'Over 200 patients attended our free diabetes screening camp. HbA1c, fasting glucose and BMI checks were provided at zero cost.',
   images: [
-    '/images/gallery_diabetes_camp.png',
-    '/images/doctor_kavya.png',
-    '/images/hero.png'
+    '/assets/gallery_diabetes_camp.png',
+    '/assets/doctor_kavya.png',
+    '/assets/hero.png'
   ],
   span: 'col-span-2 row-span-2',
   gradient: 'from-blue-500 to-cyan-600',
