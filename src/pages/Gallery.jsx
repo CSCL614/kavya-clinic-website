@@ -14,22 +14,22 @@ import SectionWrapper from '../components/SectionWrapper.jsx'
 // ─────────────────────────────────────────────────────────────────────────────
 export const galleryItems = [
   // ── Events ────────────────────────────────────────────────────────────────
-  {
-    id: 1,
-    category: 'Events',
-    title: 'Free Diabetes Screening Camp',
-    date: 'April 2026',
-    description: 'Over 200 patients attended our free diabetes screening camp. HbA1c, fasting glucose and BMI checks were provided at zero cost.',
-    images: [
-      '/src/assets/gallery_diabetes_camp.png',
-      '/src/assets/doctor_kavya.png',
-      '/src/assets/hero.png'
-    ],
-    span: 'col-span-2 row-span-2',   // featured large card
-    gradient: 'from-blue-500 to-cyan-600',
-    icon: '🩺',
-    tags: ['Free Camp', 'Diabetes', '200+ Attended'],
-  },
+{
+  id: 1,
+  category: 'Events',
+  title: 'Free Diabetes Screening Camp',
+  date: 'April 2026',
+  description: 'Over 200 patients attended our free diabetes screening camp. HbA1c, fasting glucose and BMI checks were provided at zero cost.',
+  images: [
+    '/images/gallery_diabetes_camp.png',
+    '/images/doctor_kavya.png',
+    '/images/hero.png'
+  ],
+  span: 'col-span-2 row-span-2',
+  gradient: 'from-blue-500 to-cyan-600',
+  icon: '🩺',
+  tags: ['Free Camp', 'Diabetes', '200+ Attended'],
+},
   {
     id: 2,
     category: 'Events',
