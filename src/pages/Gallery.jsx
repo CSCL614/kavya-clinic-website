@@ -7,6 +7,11 @@ import {
 } from 'lucide-react'
 import SectionWrapper from '../components/SectionWrapper.jsx'
 
+
+import diabetesImg from '../assets/ba_diabetes2_after.png';
+import doctorImg from '../assets/doctor_kavya.png';
+import heroImg from '../assets/hero.png';
+
 // ─────────────────────────────────────────────────────────────────────────────
 // GALLERY DATA
 // To add a real image: set `img: '/src/assets/your-image.png'`
@@ -21,9 +26,9 @@ export const galleryItems = [
   date: 'April 2026',
   description: 'Over 200 patients attended our free diabetes screening camp. HbA1c, fasting glucose and BMI checks were provided at zero cost.',
   images: [
-    '/assets/gallery_diabetes_camp.png',
-    '/assets/doctor_kavya.png',
-    '/assets/hero.png'
+    diabetesImg,
+    doctorImg,
+    heroImg
   ],
   span: 'col-span-2 row-span-2',
   gradient: 'from-blue-500 to-cyan-600',
